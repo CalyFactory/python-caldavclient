@@ -56,6 +56,7 @@ class CaldavClient:
 
 
             xmlTree = ElementTree(fromstring(ret.text)).getroot()
+
             calendarList = []
             for response in xmlTree:
                 if response[0].text == calendarUrl:
@@ -88,10 +89,21 @@ class CaldavClient:
                 data = static.XML_REQ_CALENDARETAG,
                 auth = self.client.auth
             )
-
-            print(ret.text)
         
-    class Event:
+            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+            eventList = []
+            for response in xmlTree:
+                if response[0].text == self.calendarUrl:
+                    continue
+                event = self.client.Event(
+                    eventUrl = response[0].text,
+                    eTag = response[1][0][0].text
+                )
+                eventList.append(event)
+            
+            return eventList
 
-        def __init__(self, event):
-            self.event = event
+    class Event:
+        def __init__(self, eventUrl, eTag):
+            self.eventUrl = eventUrl
+            self.eTag = eTag

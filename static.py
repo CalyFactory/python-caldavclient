@@ -34,6 +34,10 @@ XML_REQ_CALENDARINFO = (
     "</ns0:propfind>"
 )
 
+XML_REQ_CALENDARCTAG = (
+    
+)
+
 XML_REQ_CALENDARETAG = (
     "<?xml version='1.0' encoding='utf-8'?>"
     "<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"

@@ -21,4 +21,6 @@ calendars = principal.getCalendars()
 for calendar in calendars:
     print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
 
-calendars[0].getAllEvent()
+eventList = calendars[0].getAllEvent()
+for event in eventList:
+    print (event.eTag)
