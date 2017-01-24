@@ -43,6 +43,9 @@ client = CaldavClient(
 principal = client.getPrincipal()
 originCalendars = principal.getCalendars()
 
+originCalendars[0].getAllEvent()
+originCalendars[1].getAllEvent()
+
 for calendar in originCalendars:
     print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
 
@@ -53,22 +56,20 @@ for event in originCalendars[0].eventList:
 while True:
     print("start sync")
     newCalendars = principal.getCalendars()
+    newCalendars[0].getAllEvent()
+    newCalendars[1].getAllEvent()
     
-    changedList = util.diffCalendar(newCalendars, originCalendars)
+    changedList = util.diffCalendar(originCalendars, newCalendars)
 
     if len(changedList)!=0:
         print("change detected")
         for old, new in changedList:
-            print(old)
-            print(new)
-            print(old.eventList)
-            print(new.eventList)
             
-            eventDiff = util.diffEvent(old.eventList, new.getAllEvent())
-            print("add : " + eventDiff.added())
-            print("removed : " + eventDiff.removed())
-            print("changed : " + eventDiff.changed())
-            print("unchanged : " + eventDiff.unchanged())
+            eventDiff = util.diffEvent(old.eventList, new.eventList)
+            print("add : " + str(eventDiff.added()))
+            print("removed : " + str(eventDiff.removed()))
+            print("changed : " + str(eventDiff.changed()))
+            print("unchanged : " + str(eventDiff.unchanged()))
 
     else:
         print("nothing changed")
