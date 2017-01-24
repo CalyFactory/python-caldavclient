@@ -1,4 +1,6 @@
 import requests 
+import static
+
 
 class CaldavClient:
 
@@ -8,35 +10,27 @@ class CaldavClient:
         self.userPw = pw 
     
     def getPrincipal(self):
-        ret = requests.request(
-            "PROPFIND",
-            self.hostname, 
-            data = (
-                "<?xml version='1.0' encoding='utf-8'?>"
-                "<ns0:propfind xmlns:C=\"urn:ietf:params:xml:ns:caldav\" xmlns:D=\"DAV\" xmlns:ns0=\"DAV:\">"
-                "   <ns0:prop>"
-                "       <C:calendar-home-set/>"
-                "   </ns0:prop>"
-                "</ns0:propfind>"
-            ),
-            auth = (
-                self.userId,
-                self.userPw
-            )
+        ret = self.request(
+            depth = 0,
+            data = static.XML_REQ_PRINCIPAL
         )
         print(ret.status_code)
         print(ret.text)
 
-    def request(self, method = "PROPFIND", depth = 0, data):
+    def request(self, method = "PROPFIND", depth = 0, data = ""):
         response = requests.request(
             method,
             self.hostname,
             data = data, 
+            headers = {
+                "Depth" : str(depth)
+            },
             auth = (
                 self.userId, 
                 self.userPw 
             )
         )
+        return response
 
 class Principal:
     
