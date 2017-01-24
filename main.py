@@ -10,10 +10,15 @@ with open('key.json') as json_data:
 # apple : caldav.icloud.com
 
 client = CaldavClient(
-#    "https://caldav.icloud.com:443",
-    "https://caldav.calendar.naver.com:443/caldav/jspiner/calendar/",
+    "https://caldav.calendar.naver.com/principals/users/jspiner",
     userId,
     userPw
 )
 
-print(client.getPrincipal())
+principal = client.getPrincipal()
+calendars = principal.getCalendars()
+
+for calendar in calendars:
+    print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
+
+calendars[0].getAllEvent()

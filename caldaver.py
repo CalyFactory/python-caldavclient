@@ -20,31 +20,78 @@ class CaldavClient:
         
         principal = self.Principal(
             hostname = self.hostname,
-            principalUrl = xmlTree[0][0].text
+            principalUrl = xmlTree[0][0].text,
+            client = self
         )
         return principal
 
     class Principal:
         
-        def __init__(self, hostname, principalUrl):
+        def __init__(self, hostname, principalUrl, client):
             self.hostname = util.getHostnameFromUrl(hostname)
-            print(self.hostname)
             self.principalUrl = principalUrl
-            self.domainUrl = hostname + principalUrl
+            self.domainUrl = self.hostname + self.principalUrl
+            self.client = client
 
         def getCalendars(self):
+            ## load calendar url 
             ret = util.requestData(
                 hostname = self.domainUrl,
                 depth = 0,
                 data = static.XML_REQ_HOMESET,
-                auth = self.auth
+                auth = self.client.auth
             )
-            print(ret)
 
-    class VCalendar:
+            xmlTree = ElementTree(fromstring(ret.text)).getroot()
 
-        def __init__(self, hostname, vcalendarUrl):
-            self.hostname = hostname
-            self.vcalendarUrl = vcalendarUrl
-            self.domainUrl = hostname + vcalendarUrl
+            calendarUrl = xmlTree[0][1][0][0][0].text
+
+            ## load calendar info (name, id, ctag)
+            ret = util.requestData(
+                hostname = self.hostname + calendarUrl,
+                depth = 1,
+                data = static.XML_REQ_CALENDARINFO,
+                auth = self.client.auth
+            )
+
+
+            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+            calendarList = []
+            for response in xmlTree:
+                if response[0].text == calendarUrl:
+                    continue
+                calendar = self.client.Calendar(
+                    hostname = self.hostname,
+                    calendarUrl = response[0].text,
+                    calendarName = response[1][0][1].text,
+                    cTag = response[1][0][2].text,
+                    client = self.client
+                )
+                calendarList.append(calendar)
+            return calendarList
+
+    class Calendar:
+
+        def __init__(self, hostname, calendarUrl, calendarName, cTag, client):
+            self.hostname = util.getHostnameFromUrl(hostname)
+            self.calendarUrl = calendarUrl
+            self.calendarName = calendarName
+            self.cTag = cTag
+            self.domainUrl = hostname + calendarUrl
+            self.client = client
         
+        def getAllEvent(self):
+            ## load all event (etag, info)
+            ret = util.requestData(
+                hostname = self.domainUrl,
+                depth = 1,
+                data = static.XML_REQ_CALENDARETAG,
+                auth = self.client.auth
+            )
+
+            print(ret.text)
+        
+    class Event:
+
+        def __init__(self, event):
+            self.event = event

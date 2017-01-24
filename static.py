@@ -25,7 +25,7 @@ XML_REQ_HOMESET = (
 
 XML_REQ_CALENDARINFO = (
     "<?xml version='1.0' encoding='utf-8'?>"
-    "<ns0:propfind xmlns:C=\"urn:ietf:params:xml:ns:caldav\" xmlns:D=\"DAV\" xmlns:ns0=\"DAV:\">"
+    "<ns0:propfind xmlns:C=\"urn:ietf:params:xml:ns:caldav\" xmlns:D=\"DAV\" xmlns:ns0=\"DAV:\"  xmlns:cs=\"http://calendarserver.org/ns/\">"
     "   <ns0:prop>"
     "       <ns0:resourcetype/>"
     "       <ns0:displayname />"
