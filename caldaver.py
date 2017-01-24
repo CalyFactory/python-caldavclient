@@ -1,40 +1,50 @@
-import requests 
 import static
-
+from xml.etree.ElementTree import *
+import util
 
 class CaldavClient:
 
     def __init__(self, hostname, id, pw):
         self.hostname = hostname
-        self.userId = id
-        self.userPw = pw 
+        self.auth = (id, pw)
     
     def getPrincipal(self):
-        ret = self.request(
+        ret = util.requestData(
+            hostname = self.hostname,
             depth = 0,
-            data = static.XML_REQ_PRINCIPAL
+            data = static.XML_REQ_PRINCIPAL,
+            auth = self.auth
         )
-        print(ret.status_code)
-        print(ret.text)
 
-    def request(self, method = "PROPFIND", depth = 0, data = ""):
-        response = requests.request(
-            method,
-            self.hostname,
-            data = data, 
-            headers = {
-                "Depth" : str(depth)
-            },
-            auth = (
-                self.userId, 
-                self.userPw 
+        xmlTree = ElementTree(fromstring(ret.text)).getroot()
+        
+        principal = self.Principal(
+            hostname = self.hostname,
+            principalUrl = xmlTree[0][0].text
+        )
+        return principal
+
+    class Principal:
+        
+        def __init__(self, hostname, principalUrl):
+            self.hostname = util.getHostnameFromUrl(hostname)
+            print(self.hostname)
+            self.principalUrl = principalUrl
+            self.domainUrl = hostname + principalUrl
+
+        def getCalendars(self):
+            ret = util.requestData(
+                hostname = self.domainUrl,
+                depth = 0,
+                data = static.XML_REQ_HOMESET,
+                auth = self.auth
             )
-        )
-        return response
+            print(ret)
 
-class Principal:
-    
-    def __init__(self, root, principal):
-        self.root = root 
-        self.principal = principal
-        self.domain = root + principal
+    class VCalendar:
+
+        def __init__(self, hostname, vcalendarUrl):
+            self.hostname = hostname
+            self.vcalendarUrl = vcalendarUrl
+            self.domainUrl = hostname + vcalendarUrl
+        

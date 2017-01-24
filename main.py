@@ -16,4 +16,4 @@ client = CaldavClient(
     userPw
 )
 
-client.getPrincipal()
+print(client.getPrincipal())
