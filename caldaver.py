@@ -87,6 +87,7 @@ class CaldavClient:
             self.hostname = util.getHostnameFromUrl(client.hostname)
             self.calendarUrl = calendarUrl
             self.cTag = cTag
+            self.eventList = []
             self.domainUrl = self.hostname + calendarUrl
             self.client = client
 
@@ -94,6 +95,7 @@ class CaldavClient:
             self.hostname = util.getHostnameFromUrl(hostname)
             self.calendarUrl = calendarUrl
             self.calendarName = calendarName
+            self.eventList = []
             self.cTag = cTag
             self.domainUrl = self.hostname + calendarUrl
             self.client = client
@@ -117,7 +119,9 @@ class CaldavClient:
                     eTag = response[1][0][0].text
                 )
                 eventList.append(event)
-            
+
+            #save event data
+            self.eventList = eventList
             return eventList
 
         ## TODO - ctag만 불러올 수 있는 쿼리 찾아보기

@@ -49,3 +49,27 @@ def calListToDict(calendarList):
     for calendar in calendarList:
         calDict[calendar.calendarUrl] = calendar.cTag
     return calDict
+
+def eventListToDict(eventList):
+    eventDict = {}
+    for event in eventList:
+        eventDict[event.eventUrl] = event.eTag
+
+def findCalendar(key, list):
+    for calendar in list:
+        if calendar.calendarUrl == key:
+            return calendar
+
+def diffCalendar(oldList, newList):
+    diffList = []
+    for calendar in oldList:
+        newCalendar = findCalendar(calendar.calendarUrl, newList)
+        if newCalendar.cTag != calendar.cTag:
+            diffList.append([calendar, newCalendar])
+    return diffList
+
+def diffEvent(oldList, newList):
+    return DictDiffer(
+        eventListToDict(oldList), 
+        eventListToDict(newList)
+    )

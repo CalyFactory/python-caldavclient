@@ -1,6 +1,7 @@
 from caldaver import CaldavClient
 import json 
 import time 
+import util
 
 with open('key.json') as json_data:
     d = json.load(json_data)
@@ -28,13 +29,6 @@ eventList = calendars[0].getAllEvent()
 for event in eventList:
     print (event.eTag)
 
-a = {'a': 1, 'b': 1, 'c': 0}
-b = {'a': 1, 'b': 2, 'd': 0}
-d = DictDiffer(b, a)
-print ("Added:" + str(d.added()))
-print ("Removed:" + str(d.removed()))
-print ("Changed:" + str(d.changed()))
-print ("Unchanged:" + str(d.unchanged()))
 """
 
 
@@ -53,21 +47,32 @@ for calendar in originCalendars:
     print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
 
 originEventList = originCalendars[0].getAllEvent()
-for event in originEventList:
+for event in originCalendars[0].eventList:
     print (event.eTag)
 
 while True:
     print("start sync")
-    changedList = principal.isListHasChanges(originCalendars)
+    newCalendars = principal.getCalendars()
+    
+    changedList = util.diffCalendar(newCalendars, originCalendars)
 
     if len(changedList)!=0:
         print("change detected")
-        for changeCalendar in changedList:
-            print(changeCalendar)
-
+        for old, new in changedList:
+            print(old)
+            print(new)
+            print(old.eventList)
+            print(new.eventList)
+            
+            eventDiff = util.diffEvent(old.eventList, new.getAllEvent())
+            print("add : " + eventDiff.added())
+            print("removed : " + eventDiff.removed())
+            print("changed : " + eventDiff.changed())
+            print("unchanged : " + eventDiff.unchanged())
 
     else:
         print("nothing changed")
-    originCalendars = principal.getCalendars()
 
+
+    originCalendars = newCalendars
     time.sleep(10)
