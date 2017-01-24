@@ -70,15 +70,32 @@ class CaldavClient:
                 )
                 calendarList.append(calendar)
             return calendarList
+        
+        def isListHasChanges(self, calendarList):
+            newCalendarList = self.getCalendars()
+            
+            newCalendarDict = util.calListToDict(newCalendarList)
+            calendarDict = util.calListToDict(calendarList)
+            dictDiffer = util.DictDiffer(newCalendarDict, calendarDict)
+            
+
+            return dictDiffer.changed()
 
     class Calendar:
+
+        def __init__(self, calendarUrl, cTag, client):
+            self.hostname = util.getHostnameFromUrl(client.hostname)
+            self.calendarUrl = calendarUrl
+            self.cTag = cTag
+            self.domainUrl = self.hostname + calendarUrl
+            self.client = client
 
         def __init__(self, hostname, calendarUrl, calendarName, cTag, client):
             self.hostname = util.getHostnameFromUrl(hostname)
             self.calendarUrl = calendarUrl
             self.calendarName = calendarName
             self.cTag = cTag
-            self.domainUrl = hostname + calendarUrl
+            self.domainUrl = self.hostname + calendarUrl
             self.client = client
         
         def getAllEvent(self):
@@ -102,6 +119,16 @@ class CaldavClient:
                 eventList.append(event)
             
             return eventList
+
+        ## TODO - ctag만 불러올 수 있는 쿼리 찾아보기
+        def getCTag(self):
+            ## load ctag
+            ret = util.requestData(
+                hostname = self.domainUrl,
+                depth = 1,
+                data = static.XML_REQ_CALENDARCTAG,
+                auth = self.client.auth
+            )
 
     class Event:
         def __init__(self, eventUrl, eTag):
