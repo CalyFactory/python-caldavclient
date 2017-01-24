@@ -25,4 +25,22 @@ class CaldavClient:
             )
         )
         print(ret.status_code)
-        print(ret.text) 
+        print(ret.text)
+
+    def request(self, method = "PROPFIND", depth = 0, data):
+        response = requests.request(
+            method,
+            self.hostname,
+            data = data, 
+            auth = (
+                self.userId, 
+                self.userPw 
+            )
+        )
+
+class Principal:
+    
+    def __init__(self, root, principal):
+        self.root = root 
+        self.principal = principal
+        self.domain = root + principal
