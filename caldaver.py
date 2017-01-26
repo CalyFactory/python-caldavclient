@@ -17,7 +17,6 @@ class CaldavClient:
         )
 
 #        xmlTree = ElementTree(fromstring(ret.text)).getroot()
-        
         xmlTree = util.XmlObject(ret.text)
 
         principal = self.Principal(
@@ -27,11 +26,6 @@ class CaldavClient:
                                 .find("prop")
                                 .find("current-user-principal")
                                 .find("href").text(),
-#            principalUrl = xmlTree.find(".//{DAV:}response")
-#                                    .find(".//{DAV:}propstat")
-#                                    .find(".//{DAV:}prop")
-#                                    .find(".//{DAV:}current-user-principal")
-#                                    .find(".//{DAV:}href").text,
             client = self
         )
         return principal
@@ -53,43 +47,42 @@ class CaldavClient:
                 auth = self.client.auth
             )
 
-            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+#            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+            xmlTree = util.XmlObject(ret.text)
             
             calendarUrl = (
-                xmlTree.find(".//{DAV:}response")
-                        .find(".//{DAV:}propstat")
-                        .find(".//{DAV:}prop")
-                        .find(".//{urn:ietf:params:xml:ns:caldav}calendar-home-set")
-                        .find(".//{DAV:}href").text
+                xmlTree.find("response")
+                        .find("propstat")
+                        .find("prop")
+                        .find("calendar-home-set")
+                        .find("href").text()
             )
 
             ## load calendar info (name, id, ctag)
             ret = util.requestData(
-#                hostname = self.hostname + calendarUrl,
-                hostname = calendarUrl,
+                hostname = util.mixHostUrl(self.hostname, calendarUrl),
                 depth = 1,
                 data = static.XML_REQ_CALENDARINFO,
                 auth = self.client.auth
             )
 
 
-            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+#            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+            xmlTree = util.XmlObject(ret.text)
 
             calendarList = []
-            for response in xmlTree:
-                if response[0].text == calendarUrl:
+            for response in xmlTree.iter():
+                if response.find("href").text() == calendarUrl:
                     continue
-                print(response.find(".//{DAV:}propstat")
-                                    .find(".//{DAV:}prop")[0])
                 calendar = self.client.Calendar(
                     hostname = self.hostname,
-                    calendarUrl = response.find(".//{DAV:}href").text,
-                    calendarName = response.find(".//{DAV:}propstat")
-                                    .find(".//{DAV:}prop")
-                                    .find(".//{DAV:}displayname").text,
-                    cTag = response.find(".//{DAV:}propstat")
-                            .find(".//{DAV:}prop")
-                            .find(".//{http://calendarserver.org/ns/}getctag").text,
+                    calendarUrl = response.find("href").text(),
+                    calendarName = response.find("propstat")
+                                    .find("prop")
+                                    .find("displayname").text(),
+                    cTag = response.find("propstat")
+                            .find("prop")
+                            .find("getctag").text(),
                     client = self.client
                 )
                 calendarList.append(calendar)
@@ -133,14 +126,16 @@ class CaldavClient:
                 auth = self.client.auth
             )
         
-            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+#            xmlTree = ElementTree(fromstring(ret.text)).getroot()
+            xmlTree = util.XmlObject(ret.text)
+
             eventList = []
-            for response in xmlTree:
-                if response[0].text == self.calendarUrl:
+            for response in xmlTree.iter():
+                if response.find("href").text == self.calendarUrl:
                     continue
                 event = self.client.Event(
-                    eventUrl = response[0].text,
-                    eTag = response[1][0][0].text
+                    eventUrl = response.find("href").text(),
+                    eTag = response.find("propstat").find("prop").find("getetag").text()
                 )
                 eventList.append(event)
 

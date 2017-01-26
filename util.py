@@ -23,6 +23,12 @@ def getHostnameFromUrl(url):
     hostname = '{uri.scheme}://{uri.netloc}'.format(uri=parsedUrl)
     return hostname
 
+def mixHostUrl(hostname, url):
+    if "http://" in url or "https://" in url:
+        return url
+    else:
+        return hostname + url
+
 class XmlObject:
 
     def __init__(self, xml = None):
@@ -36,6 +42,8 @@ class XmlObject:
     def addNamespace(self, tag):
         if tag == "calendar-home-set":
             tag = ".//{urn:ietf:params:xml:ns:caldav}" + tag
+        elif tag == "getctag":
+            tag = ".//{http://calendarserver.org/ns/}" + tag
         else:
             tag = ".//{DAV:}" + tag
         return tag
@@ -47,6 +55,12 @@ class XmlObject:
         if childObject == None:
             return XmlObject()
         return XmlObject(childObject)
+    
+    def iter(self):
+        elementList = []
+        for element in self.root:
+            elementList.append(XmlObject(element))
+        return elementList
     
     def text(self):
         if self.root==None:

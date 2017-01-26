@@ -40,13 +40,13 @@ XML_REQ_CALENDARCTAG = (
 
 XML_REQ_CALENDARETAG = (
     "<?xml version='1.0' encoding='utf-8'?>"
-    "<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"
+    "<d:propfind xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"
     "   <d:prop>"
     "       <d:getetag />"
     "       <c:calendar-data />"
     "   </d:prop>"
-    "   <c:filter>"
+    "   <d:filter>"
     "       <c:comp-filter name=\"VCALENDAR\" />"
-    "   </c:filter>"
-    "</c:calendar-query>"
+    "   </d:filter>"
+    "</d:propfind>"
 )
