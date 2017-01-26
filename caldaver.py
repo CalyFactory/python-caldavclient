@@ -16,15 +16,22 @@ class CaldavClient:
             auth = self.auth
         )
 
-        xmlTree = ElementTree(fromstring(ret.text)).getroot()
+#        xmlTree = ElementTree(fromstring(ret.text)).getroot()
         
+        xmlTree = util.XmlObject(ret.text)
+
         principal = self.Principal(
             hostname = self.hostname,
-            principalUrl = xmlTree.find(".//{DAV:}response")
-                                    .find(".//{DAV:}propstat")
-                                    .find(".//{DAV:}prop")
-                                    .find(".//{DAV:}current-user-principal")
-                                    .find(".//{DAV:}href").text,
+            principalUrl = xmlTree.find("response")
+                                .find("propstat")
+                                .find("prop")
+                                .find("current-user-principal")
+                                .find("href").text(),
+#            principalUrl = xmlTree.find(".//{DAV:}response")
+#                                    .find(".//{DAV:}propstat")
+#                                    .find(".//{DAV:}prop")
+#                                    .find(".//{DAV:}current-user-principal")
+#                                    .find(".//{DAV:}href").text,
             client = self
         )
         return principal
@@ -72,15 +79,17 @@ class CaldavClient:
             for response in xmlTree:
                 if response[0].text == calendarUrl:
                     continue
+                print(response.find(".//{DAV:}propstat")
+                                    .find(".//{DAV:}prop")[0])
                 calendar = self.client.Calendar(
                     hostname = self.hostname,
-                    calendarUrl = response.find("href").text,
+                    calendarUrl = response.find(".//{DAV:}href").text,
                     calendarName = response.find(".//{DAV:}propstat")
                                     .find(".//{DAV:}prop")
-                                    .find(".//{DAV:}display-name").text,
+                                    .find(".//{DAV:}displayname").text,
                     cTag = response.find(".//{DAV:}propstat")
                             .find(".//{DAV:}prop")
-                            .find(".//{DAV:}getctag").text,
+                            .find(".//{http://calendarserver.org/ns/}getctag").text,
                     client = self.client
                 )
                 calendarList.append(calendar)

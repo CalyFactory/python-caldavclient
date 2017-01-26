@@ -1,5 +1,6 @@
 import requests
 from urllib.parse import urlparse
+from xml.etree.ElementTree import *
 
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
     response = requests.request(
@@ -22,6 +23,37 @@ def getHostnameFromUrl(url):
     hostname = '{uri.scheme}://{uri.netloc}'.format(uri=parsedUrl)
     return hostname
 
+class XmlObject:
+
+    def __init__(self, xml = None):
+        if xml == None:
+            self.root = None
+        elif isinstance(xml, Element):
+            self.root = xml
+        else:
+            self.root = ElementTree(fromstring(xml)).getroot()
+    
+    def addNamespace(self, tag):
+        if tag == "calendar-home-set":
+            tag = ".//{urn:ietf:params:xml:ns:caldav}" + tag
+        else:
+            tag = ".//{DAV:}" + tag
+        return tag
+
+    def find(self, tag):
+        tag = self.addNamespace(tag)
+
+        childObject = self.root.find(tag)
+        if childObject == None:
+            return XmlObject()
+        return XmlObject(childObject)
+    
+    def text(self):
+        if self.root==None:
+            return ""
+        else:
+            return self.root.text
+    
 
 class DictDiffer(object):
     def __init__(self, past_dict, current_dict):
