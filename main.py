@@ -1,4 +1,4 @@
-from caldaveclient import CaldavClient
+from caldavclient import CaldavClient
 import json 
 import time 
 import util

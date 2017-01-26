@@ -16,8 +16,8 @@ class CaldavClient:
             auth = self.auth
         )
 
-#        xmlTree = ElementTree(fromstring(ret.text)).getroot()
-        xmlTree = util.XmlObject(ret.text)
+#        xmlTree = ElementTree(fromstring(ret.content)).getroot()
+        xmlTree = util.XmlObject(ret.content)
 
         principal = self.Principal(
             hostname = self.hostname,
@@ -47,8 +47,8 @@ class CaldavClient:
                 auth = self.client.auth
             )
 
-#            xmlTree = ElementTree(fromstring(ret.text)).getroot()
-            xmlTree = util.XmlObject(ret.text)
+#            xmlTree = ElementTree(fromstring(ret.content)).getroot()
+            xmlTree = util.XmlObject(ret.content)
             
             calendarUrl = (
                 xmlTree.find("response")
@@ -67,8 +67,8 @@ class CaldavClient:
             )
 
 
-#            xmlTree = ElementTree(fromstring(ret.text)).getroot()
-            xmlTree = util.XmlObject(ret.text)
+#            xmlTree = ElementTree(fromstring(ret.content)).getroot()
+            xmlTree = util.XmlObject(ret.content)
 
             calendarList = []
             for response in xmlTree.iter():
@@ -126,8 +126,8 @@ class CaldavClient:
                 auth = self.client.auth
             )
         
-#            xmlTree = ElementTree(fromstring(ret.text)).getroot()
-            xmlTree = util.XmlObject(ret.text)
+#            xmlTree = ElementTree(fromstring(ret.content)).getroot()
+            xmlTree = util.XmlObject(ret.content)
 
             eventList = []
             for response in xmlTree.iter():
