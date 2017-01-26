@@ -5,16 +5,17 @@ import util
 
 with open('key.json') as json_data:
     d = json.load(json_data)
-    userId = d['naver']['id']
-    userPw = d['naver']['pw']
+    userId = d['apple']['id']
+    userPw = d['apple']['pw']
 
 # naver : https://caldav.calendar.naver.com:443/caldav/jspiner/calendar/
 # apple : caldav.icloud.com
 
-"""
+
 ##calendar load example 
 client = CaldavClient(
-    "https://caldav.calendar.naver.com/principals/users/jspiner",
+    "https://caldav.icloud.com",
+#    "https://caldav.calendar.naver.com/principals/users/jspiner",
     userId,
     userPw
 )
@@ -29,11 +30,11 @@ eventList = calendars[0].getAllEvent()
 for event in eventList:
     print (event.eTag)
 
-"""
+
 
 
 ##calendar sync example
-
+"""
 client = CaldavClient(
     "https://caldav.calendar.naver.com/principals/users/jspiner",
     userId,
@@ -77,3 +78,4 @@ while True:
 
     originCalendars = newCalendars
     time.sleep(10)
+"""
