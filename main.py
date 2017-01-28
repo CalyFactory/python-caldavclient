@@ -1,7 +1,7 @@
 from caldavclient import CaldavClient
 import json 
 import time 
-import util
+from caldavclient import util
 
 with open('key.json') as json_data:
     d = json.load(json_data)
@@ -10,7 +10,6 @@ with open('key.json') as json_data:
 
 # naver : https://caldav.calendar.naver.com:443/caldav/jspiner/calendar/
 # apple : caldav.icloud.com
-
 
 ##calendar load example 
 client = CaldavClient(
