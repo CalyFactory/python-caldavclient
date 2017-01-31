@@ -7,8 +7,14 @@ class CaldavClient:
     def __init__(self, hostname, id, pw):
         self.hostname = hostname
         self.auth = (id, pw)
+        self.principal = None
     
     def getPrincipal(self):
+        if self.principal is None:
+            self.updatePrincipal()
+        return self.principal
+    
+    def updatePrincipal(self):
         ret = util.requestData(
             hostname = self.hostname,
             depth = 0,
@@ -29,7 +35,7 @@ class CaldavClient:
                                 .find("href").text(),
             client = self
         )
-        return principal
+        self.principal = principal
 
     class Principal:
         
@@ -38,8 +44,14 @@ class CaldavClient:
             self.principalUrl = principalUrl
             self.domainUrl = self.hostname + self.principalUrl
             self.client = client
+            self.homeset = None 
 
         def getHomeSet(self):
+            if self.homeset is None:
+                self.updateHomeSet()
+            return self.homeset
+        
+        def updateHomeSet(self):
             ## load calendar url 
             ret = util.requestData(
                 hostname = self.domainUrl,
@@ -60,9 +72,7 @@ class CaldavClient:
                         .find("href").text(),
                 client = self.client
             )
-
-            return homeset
-        
+            self.homeset = homeset
         
         def isListHasChanges(self, calendarList):
             newCalendarList = self.getCalendars()
@@ -79,8 +89,14 @@ class CaldavClient:
             self.hostname = hostname
             self.homesetUrl = homesetUrl
             self.client = client
+            self.calendarList = None 
 
         def getCalendars(self):
+            if self.calendarList is None:
+                self.updateCalendars()
+            return self.calendarList
+        
+        def updateCalendars(self):
             ## load calendar info (name, id, ctag)
             ret = util.requestData(
                 hostname = util.mixHostUrl(self.hostname, self.homesetUrl),
@@ -88,7 +104,6 @@ class CaldavClient:
                 data = static.XML_REQ_CALENDARINFO,
                 auth = self.client.auth
             )
-
 
 #            xmlTree = ElementTree(fromstring(ret.content)).getroot()
             xmlTree = util.XmlObject(ret.content)
@@ -109,10 +124,11 @@ class CaldavClient:
                     client = self.client
                 )
                 calendarList.append(calendar)
-            return calendarList
+                self.calendarList = calendarList
+
 
     class Calendar:
-
+        """ TODO - 왠지 이유가 있어서 만들었는데 기억도 안나고 아무데서도 안쓰네?
         def __init__(self, calendarUrl, cTag, client):
             self.hostname = util.getHostnameFromUrl(client.hostname)
             self.calendarUrl = calendarUrl
@@ -120,6 +136,7 @@ class CaldavClient:
             self.eventList = []
             self.domainUrl = self.hostname + calendarUrl
             self.client = client
+        """
 
         def __init__(self, hostname, calendarUrl, calendarName, cTag, client):
             self.hostname = util.getHostnameFromUrl(hostname)
@@ -129,8 +146,14 @@ class CaldavClient:
             self.cTag = cTag
             self.domainUrl = self.hostname + calendarUrl
             self.client = client
+            self.eventList = None
         
         def getAllEvent(self):
+            if self.eventList is None:
+                self.updateAllEvent()
+            return self.eventList
+        
+        def updateAllEvent(self):
             ## load all event (etag, info)
             ret = util.requestData(
                 hostname = self.domainUrl,
@@ -154,7 +177,7 @@ class CaldavClient:
 
             #save event data
             self.eventList = eventList
-            return eventList
+
 
         ## TODO - ctag만 불러올 수 있는 쿼리 찾아보기
         def getCTag(self):
