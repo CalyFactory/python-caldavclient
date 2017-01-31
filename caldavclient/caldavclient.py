@@ -140,6 +140,7 @@ class CaldavClient:
 
         def __init__(self, hostname, calendarUrl, calendarName, cTag, client):
             self.hostname = util.getHostnameFromUrl(hostname)
+            self.calendarId = util.splitIdfromUrl(calendarUrl)
             self.calendarUrl = calendarUrl
             self.calendarName = calendarName
             self.eventList = []
@@ -192,4 +193,5 @@ class CaldavClient:
     class Event:
         def __init__(self, eventUrl, eTag):
             self.eventUrl = eventUrl
+            self.eventId = util.splitIdfromUrl(eventUrl)
             self.eTag = eTag
