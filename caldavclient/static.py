@@ -35,7 +35,12 @@ XML_REQ_CALENDARINFO = (
 )
 
 XML_REQ_CALENDARCTAG = (
-
+    "<?xml version='1.0' encoding='utf-8'?>"
+    "<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">"
+    "   <d:prop>"
+    "      <cs:getctag />"
+    "   </d:prop>"
+    "</d:propfind>"
 )
 
 XML_REQ_CALENDARETAG = (

@@ -36,6 +36,39 @@ class CaldavClient:
             client = self
         )
         self.principal = principal
+        return principal
+    
+    def setPrincipal(self, principal):
+        self.principal = self.Principal(
+            hostname = self.hostname,
+            principalUrl = principal,
+            client = self
+        )
+        return self
+    
+    def setHomeSet(self, homeset):
+        if self.principal == None:
+            raise Exception('principal is not inited')
+        else:
+            self.principal.homeset = self.HomeSet(
+                hostname = self.principal.hostname,
+                homesetUrl = homeset,
+                client = self
+            )
+        return self
+            
+    def setCalendars(self, calendarList):
+        if self.principal == None:
+            raise Exception('principal is not inited')
+        elif self.principal.homeset == None:
+            raise Exception('homeset is not inited')
+        else:
+            for calendar in calendarList:
+                calendar.hostname = self.principal.homeset.hostname
+                calendar.domainUrl = calendar.hostname + calendar.calendarUrl
+                calendar.client = self 
+            self.principal.homeset.calendarList = calendarList 
+        return self 
 
     class Principal:
         
@@ -73,6 +106,7 @@ class CaldavClient:
                 client = self.client
             )
             self.homeset = homeset
+            return homeset
         
         def isListHasChanges(self, calendarList):
             newCalendarList = self.getCalendars()
@@ -124,30 +158,38 @@ class CaldavClient:
                     client = self.client
                 )
                 calendarList.append(calendar)
-                self.calendarList = calendarList
-
+            self.calendarList = calendarList
+            return calendarList
+            
 
     class Calendar:
-        """ TODO - 왠지 이유가 있어서 만들었는데 기억도 안나고 아무데서도 안쓰네?
-        def __init__(self, calendarUrl, cTag, client):
-            self.hostname = util.getHostnameFromUrl(client.hostname)
+        """
+        def __init__(self, calendarUrl, calendarName, cTag):
+#            self.hostname = util.getHostnameFromUrl(hostname)
+            self.calendarId = util.splitIdfromUrl(calendarUrl)
             self.calendarUrl = calendarUrl
+            self.calendarName = calendarName
             self.cTag = cTag
-            self.eventList = []
-            self.domainUrl = self.hostname + calendarUrl
-            self.client = client
+#            self.domainUrl = self.hostname + calendarUrl
+#            self.client = client
+            self.eventList = None
         """
 
-        def __init__(self, hostname, calendarUrl, calendarName, cTag, client):
+        def __init__(self, calendarUrl, calendarName, cTag, client = None, hostname = None):
             self.hostname = util.getHostnameFromUrl(hostname)
             self.calendarId = util.splitIdfromUrl(calendarUrl)
             self.calendarUrl = calendarUrl
             self.calendarName = calendarName
-            self.eventList = []
             self.cTag = cTag
             self.domainUrl = self.hostname + calendarUrl
             self.client = client
             self.eventList = None
+
+
+        def isChanged(self):
+            oldcTag = self.cTag 
+            newcTag = self.getCTag()
+            return oldcTag != newcTag
         
         def getAllEvent(self):
             if self.eventList is None:
@@ -178,9 +220,8 @@ class CaldavClient:
 
             #save event data
             self.eventList = eventList
+            return eventList
 
-
-        ## TODO - ctag만 불러올 수 있는 쿼리 찾아보기
         def getCTag(self):
             ## load ctag
             ret = util.requestData(
@@ -189,6 +230,11 @@ class CaldavClient:
                 data = static.XML_REQ_CALENDARCTAG,
                 auth = self.client.auth
             )
+
+            xmlTree = util.XmlObject(ret.content)
+            cTag = xmlTree.find("response").find("propstat").find("prop").find("getctag").text()
+
+            return cTag
 
     class Event:
         def __init__(self, eventUrl, eTag):
