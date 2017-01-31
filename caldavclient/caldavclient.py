@@ -18,7 +18,8 @@ class CaldavClient:
 
 #        xmlTree = ElementTree(fromstring(ret.content)).getroot()
         xmlTree = util.XmlObject(ret.content)
-
+        xmlTree.find("response").text
+        
         principal = self.Principal(
             hostname = self.hostname,
             principalUrl = xmlTree.find("response")
@@ -38,7 +39,7 @@ class CaldavClient:
             self.domainUrl = self.hostname + self.principalUrl
             self.client = client
 
-        def getCalendars(self):
+        def getHomeSet(self):
             ## load calendar url 
             ret = util.requestData(
                 hostname = self.domainUrl,
@@ -50,17 +51,39 @@ class CaldavClient:
 #            xmlTree = ElementTree(fromstring(ret.content)).getroot()
             xmlTree = util.XmlObject(ret.content)
             
-            calendarUrl = (
-                xmlTree.find("response")
+            homeset = self.client.HomeSet(
+                hostname = self.hostname,
+                homesetUrl = xmlTree.find("response")
                         .find("propstat")
                         .find("prop")
                         .find("calendar-home-set")
-                        .find("href").text()
+                        .find("href").text(),
+                client = self.client
             )
 
+            return homeset
+        
+        
+        def isListHasChanges(self, calendarList):
+            newCalendarList = self.getCalendars()
+            
+            newCalendarDict = util.calListToDict(newCalendarList)
+            calendarDict = util.calListToDict(calendarList)
+            dictDiffer = util.DictDiffer(newCalendarDict, calendarDict)
+            
+
+            return dictDiffer.changed()
+    
+    class HomeSet:
+        def __init__(self, hostname, homesetUrl, client):
+            self.hostname = hostname
+            self.homesetUrl = homesetUrl
+            self.client = client
+
+        def getCalendars(self):
             ## load calendar info (name, id, ctag)
             ret = util.requestData(
-                hostname = util.mixHostUrl(self.hostname, calendarUrl),
+                hostname = util.mixHostUrl(self.hostname, self.homesetUrl),
                 depth = 1,
                 data = static.XML_REQ_CALENDARINFO,
                 auth = self.client.auth
@@ -72,7 +95,7 @@ class CaldavClient:
 
             calendarList = []
             for response in xmlTree.iter():
-                if response.find("href").text() == calendarUrl:
+                if response.find("href").text() == self.homesetUrl:
                     continue
                 calendar = self.client.Calendar(
                     hostname = self.hostname,
@@ -87,16 +110,6 @@ class CaldavClient:
                 )
                 calendarList.append(calendar)
             return calendarList
-        
-        def isListHasChanges(self, calendarList):
-            newCalendarList = self.getCalendars()
-            
-            newCalendarDict = util.calListToDict(newCalendarList)
-            calendarDict = util.calListToDict(calendarList)
-            dictDiffer = util.DictDiffer(newCalendarDict, calendarDict)
-            
-
-            return dictDiffer.changed()
 
     class Calendar:
 
