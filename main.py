@@ -20,7 +20,8 @@ client = CaldavClient(
 )
 
 principal = client.getPrincipal()
-calendars = principal.getCalendars()
+homeset = principal.getHomeSet()
+calendars = homeset.getCalendars()
 
 for calendar in calendars:
     print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
@@ -30,9 +31,51 @@ for event in eventList:
     print (event.eTag)
 
 
+"""
+##calendar sync example(new)
+
+#client 객체에 db에서 데이터를 불러와 넣어줌 
+client = (
+    CaldavClient(
+        hostname,
+        userId,
+        userPw
+    ).setPrincipal("principal_url")   #db 에서 로드 
+    .setHomeSet("home_set_cal_url")  #db 에서 로드 
+    .setCalendars("calendarList")       #db에서 로드해서 list calendar object 로 삽입
+)
+
+calendars = client.getPrincipal().getHomeSet().getCalendars()
+
+## 주기적으로 돌면서 diff 체크 
+while True:
+    print("start sync")
+
+    ##동기화할 캘린더 선택 
+    calendarToSync = calendars[0]
+    if calendarToSync.isChanged():
+        print("something changed")
+        newEventList = calendarToSync.updateAllEvent()
+        oldEventList = [] #db에서 이전 event리스트들을 불러옴 
+        eventDiff = util.diffEvent(newEventList, oldEventList)
+
+        
+        print("add : " + str(eventDiff.added()))
+        print("removed : " + str(eventDiff.removed()))
+        print("changed : " + str(eventDiff.changed()))
+        print("unchanged : " + str(eventDiff.unchanged()))
+    else:
+        print("nothing changed")
+
+    
+
+    time.sleep(10)
+"""
 
 
-##calendar sync example
+
+
+##calendar sync example(old)
 """
 client = CaldavClient(
     "https://caldav.calendar.naver.com/principals/users/jspiner",
