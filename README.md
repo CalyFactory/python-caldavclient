@@ -10,6 +10,7 @@ Support
  - Get cTag, eTag, calendar event Info
  - Diff with cached data(ctag, etag)
  - ICS Parsing
+ 
 Basic Useage
 ------------
 ```python
