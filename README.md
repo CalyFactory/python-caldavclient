@@ -1,6 +1,16 @@
 # Python Calendaring Extensions to WebDAV library
 caldav library
 
+Support 
+------------
+ - Basic Auth (Http 1.1)
+ - Xml Req
+ - Get Principal Info
+ - Get HomeSet Info
+ - Get cTag, eTag, calendar event Info
+ - Diff with cached data(ctag, etag)
+ - ICS Parsing
+ 
 Basic Useage
 ------------
 ```python
