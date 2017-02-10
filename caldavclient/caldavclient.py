@@ -120,7 +120,7 @@ class CaldavClient:
     
     class HomeSet:
         def __init__(self, hostname, homesetUrl, client):
-            self.hostname = hostname
+            self.hostname = util.getHostnameFromUrl(homesetUrl)
             self.homesetUrl = homesetUrl
             self.client = client
             self.calendarList = None 
@@ -176,7 +176,7 @@ class CaldavClient:
         """
 
         def __init__(self, calendarUrl, calendarName, cTag, client = None, hostname = None):
-            self.hostname = util.getHostnameFromUrl(hostname)
+            self.hostname = util.getHostnameFromUrl(calendarUrl)
             self.calendarId = util.splitIdfromUrl(calendarUrl)
             self.calendarUrl = calendarUrl
             self.calendarName = calendarName
