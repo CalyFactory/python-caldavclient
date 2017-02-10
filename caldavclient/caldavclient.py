@@ -233,7 +233,7 @@ class CaldavClient:
 
             xmlTree = util.XmlObject(ret.content)
             cTag = xmlTree.find("response").find("propstat").find("prop").find("getctag").text()
-
+            self.cTag = cTag
             return cTag
 
     class Event:

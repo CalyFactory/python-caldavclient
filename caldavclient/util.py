@@ -1,7 +1,13 @@
+import sys
+# Add the ptdraft folder path to the sys.path list
+
 import requests
 from urllib.parse import urlparse
 from xml.etree.ElementTree import *
-
+from caldavclient import caldavclient
+from datetime import datetime
+import json
+from icalendar import Calendar
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
     response = requests.request(
         method,
@@ -12,11 +18,52 @@ def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth =
         },
         auth = auth 
     )
-
+    
     if response.status_code<200 or response.status_code>299:
         raise Exception('http code error' + str(response.status_code))
 
     return response
+
+# Convert ics to json format
+def convert_ics_to_json(homeset_cal_id, cal_id, evt_id, acc_auth): # acc_auth="Basic user_base64_hash_key"
+    # Open .ics
+    url_resp = requests.request("GET",homeset_cal_id+cal_id+evt_id,headers={"Depth":"1","Authorization":"Basic "+acc_auth})
+    cal = Calendar.from_ical(url_resp.text)
+    for component in cal.walk():
+        if component.name == "VEVENT":
+            evt_name=component.get('summary')
+            dt_start=str(component.get('dtstart').dt)
+            dt_end=str(component.get('dtend').dt)
+            location=component.get('location')
+
+            dt_start=dtConverter(dt_start)
+            dt_end=dtConverter(dt_end)
+
+            return json.dumps({
+                    'name': evt_name,
+                    'dt_start': dt_start,
+                    'dt_end': dt_end,
+                    'location': location
+                })
+    return "error"
+
+# Convert with home-set-calendar ID
+def convert_ics_to_json_with_hscalID(homeset_cal_id, cal_id, evt_id):
+    res = db_connector.query("select user_base64 from account where home_set_cal_url=%s",(homeset_cal_id,))
+    rows = util.fetch_all_json(res)
+    if rows[0]['user_base64'] is None:
+        return #handle error message
+    acc_auth=rows[0]['user_base64']
+    convert_ics_to_json(homeset_cal_id, cal_id, evt_id, acc_auth)
+
+
+def dtConverter(dt_ics):
+    # ICS Date time format : TZID=Asia/Seoul:20170117T090000
+    # iCalendar Date time format : 2017-01-17 10:00:00+09:00
+    
+    # how to handle korean time?
+
+    return dt_ics
 
 def getHostnameFromUrl(url):
     parsedUrl = urlparse(url)
@@ -107,6 +154,23 @@ def eventListToDict(eventList):
         eventDict[event.eventUrl] = event.eTag
     return eventDict
 
+def eventRowToList(eventRow):
+    eventList = []
+    for row in eventRow:
+        event = caldavclient.CaldavClient.Event(
+            eventUrl = row['event_url'],
+            eTag = row['e_tag']
+        )
+        eventList.append(event)
+    return eventList
+
+def findETag(eventList, eventUrl):
+    for event in eventList:
+        if event.eventUrl == eventUrl:
+            if event.eTag is None:
+                return ""
+            return event.eTag
+
 def findCalendar(key, list):
     for calendar in list:
         if calendar.calendarUrl == key:
@@ -125,3 +189,21 @@ def diffEvent(oldList, newList):
         eventListToDict(oldList), 
         eventListToDict(newList)
     )
+
+def fetch_all_json(result):
+  lis = []
+
+  for row in result.fetchall():
+    i =0
+    dic = {}  
+    
+    for data in row:
+      if type(data) == datetime:
+        dic[result.keys()[i]]= str(data)
+      else:
+        dic[result.keys()[i]]= data
+      if i == len(row)-1:
+        lis.append(dic)
+
+      i=i+1
+  return lis
