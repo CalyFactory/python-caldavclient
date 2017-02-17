@@ -8,7 +8,6 @@ class CaldavClient:
         self.hostname = hostname
         self.auth = auth
         self.principal = None
-        print(auth)
     
     def getPrincipal(self):
         if self.principal is None:
@@ -197,16 +196,22 @@ class CaldavClient:
                 self.updateAllEvent()
             return self.eventList
 
-        def getEventByRange(self, stDate, edDate):
+        def getCalendarData(self, eventList):
+
+            sendDataList = []
+
+            for eventItem in eventList:
+                sendDataList.append("<D:href xmlns:D=\"DAV:\">%s</D:href>" % (eventItem.eventUrl))
+            sendData = "\n".join(sendDataList)
+
             ret = util.requestData(
                 method = "REPORT",
                 hostname=self.domainUrl,
                 depth=1,
-                data=static.XML_REQ_CALENDARDATA % (stDate, edDate),
+                data=static.XML_REQ_CALENDARDATA % (sendData),
                 auth = self.client.auth
             )
         
-            print(ret.content)
             xmlTree = util.XmlObject(ret.content)
 
             eventList = []
@@ -218,7 +223,30 @@ class CaldavClient:
                     eTag = response.find("propstat").find("prop").find("getetag").text(),
                     eventData = response.find("propstat").find("prop").find("calendar-data").text()
                 )
-                print(str(response.find("propstat").find("prop").find("calendar-data")))
+                eventList.append(event)
+
+            return eventList
+
+
+        def getEventByRange(self, stDate, edDate):
+            ret = util.requestData(
+                method = "REPORT",
+                hostname=self.domainUrl,
+                depth=1,
+                data=static.XML_REQ_CALENDARDATEFILTER % (stDate, edDate),
+                auth = self.client.auth
+            )
+        
+            xmlTree = util.XmlObject(ret.content)
+
+            eventList = []
+            for response in xmlTree.iter():
+                if response.find("href").text == self.calendarUrl:
+                    continue
+                event = self.client.Event(
+                    eventUrl = response.find("href").text(),
+                    eTag = response.find("propstat").find("prop").find("getetag").text()
+                )
                 eventList.append(event)
 
             return eventList

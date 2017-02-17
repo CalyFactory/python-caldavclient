@@ -65,7 +65,7 @@ XML_REQ_CALENDARDATEFILTER = (
     <C:filter>
         <C:comp-filter name="VCALENDAR">
             <C:comp-filter name="VEVENT">
-                <C:time-range end="%s" start="%s"/>
+                <C:time-range start="%s" end="%s"/>
             </C:comp-filter>
         </C:comp-filter>
     </C:filter>

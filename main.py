@@ -5,16 +5,16 @@ from caldavclient import util
 
 with open('key.json') as json_data:
     d = json.load(json_data)
-    userId = d['naver']['id']
-    userPw = d['naver']['pw']
+    userId = d['apple']['id']
+    userPw = d['apple']['pw']
 
 # naver : https://caldav.calendar.naver.com:443/caldav/jspiner/calendar/
 # apple : caldav.icloud.com
 
 ##calendar load example 
 client = CaldavClient(
-#    "https://caldav.icloud.com",
-    "https://caldav.calendar.naver.com/principals/",
+    "https://caldav.icloud.com",
+#    "https://caldav.calendar.naver.com/principals/",
     (userId, userPw)
 )
 
@@ -25,9 +25,10 @@ calendars = homeset.getCalendars()
 for calendar in calendars:
     print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
 
-eventList = calendars[0].getAllEvent()
-for event in eventList:
-    print (event.eTag)
+eventList = calendars[0].getEventByRange( "20151117T000000Z", "20170125T000000Z")
+eventDataList = calendars[0].getCalendarData(eventList)
+for event in eventDataList:
+    print (event.eventData)
 
 
 """
