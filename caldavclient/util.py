@@ -10,16 +10,27 @@ import json
 from icalendar import Calendar
 
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
-    response = requests.request(
-        method,
-        hostname,
-        data = data, 
-        headers = {
-            "Depth" : str(depth)
-        },
-        auth = auth 
-    )
-    
+    if isinstance(auth, tuple):
+        response = requests.request(
+            method,
+            hostname,
+            data = data, 
+            headers = {
+                "Depth" : str(depth)
+            },
+            auth = auth 
+        )
+    else:
+        response = requests.request(
+            method,
+            hostname,
+            data = data, 
+            headers = {
+                "Depth" : str(depth),
+                "Authorization" : "Basic " + str(auth)
+            },
+        )
+
     if response.status_code<200 or response.status_code>299:
         raise Exception('http code error' + str(response.status_code))
 
