@@ -56,15 +56,31 @@ XML_REQ_CALENDARETAG = (
     "</d:propfind>"
 )
 
+XML_REQ_CALENDARDATEFILTER = (
+"""
+<C:calendar-query xmlns:C="urn:ietf:params:xml:ns:caldav">
+    <D:prop xmlns:D="DAV:">
+        <D:getetag/>
+    </D:prop>
+    <C:filter>
+        <C:comp-filter name="VCALENDAR">
+            <C:comp-filter name="VEVENT">
+                <C:time-range end="%s" start="%s"/>
+            </C:comp-filter>
+        </C:comp-filter>
+    </C:filter>
+</C:calendar-query>
+"""
+)
 
 XML_REQ_CALENDARDATA = (
 """
-   <C:calendar-query xmlns:D="DAV:"
-                 xmlns:C="urn:ietf:params:xml:ns:caldav">
-     <D:prop>
-       <D:getetag/>
+   <C:calendar-multiget xmlns:C="urn:ietf:params:xml:ns:caldav">
+    <D:prop xmlns:D="DAV:">
+        <D:getetag/>
        <C:calendar-data>
          <C:comp name="VCALENDAR">
+           <C:prop name="VERSION"/>
            <C:comp name="VEVENT">
              <C:prop name="SUMMARY"/>
              <C:prop name="UID"/>
@@ -79,15 +95,8 @@ XML_REQ_CALENDARDATA = (
            </C:comp>
          </C:comp>
        </C:calendar-data>
-     </D:prop>
-     <C:filter>
-       <C:comp-filter name="VCALENDAR">
-         <C:comp-filter name="VEVENT">
-           <C:time-range start="%s"
-                         end="%s"/>
-         </C:comp-filter>
-       </C:comp-filter>
-     </C:filter>
-   </C:calendar-query>
+    </D:prop>   
+    %s
+</C:calendar-multiget>
 """
 )
