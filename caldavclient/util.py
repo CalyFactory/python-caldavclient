@@ -8,6 +8,7 @@ from caldavclient import caldavclient
 from datetime import datetime
 import json
 from icalendar import Calendar
+
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
     response = requests.request(
         method,
@@ -96,6 +97,8 @@ class XmlObject:
     
     def addNamespace(self, tag):
         if tag == "calendar-home-set":
+            tag = ".//{urn:ietf:params:xml:ns:caldav}" + tag
+        elif tag == "calendar-data":
             tag = ".//{urn:ietf:params:xml:ns:caldav}" + tag
         elif tag == "getctag":
             tag = ".//{http://calendarserver.org/ns/}" + tag

@@ -120,7 +120,7 @@ class CaldavClient:
     
     class HomeSet:
         def __init__(self, hostname, homesetUrl, client):
-            self.hostname = util.getHostnameFromUrl(homesetUrl)
+            self.hostname = hostname
             self.homesetUrl = homesetUrl
             self.client = client
             self.calendarList = None 
@@ -176,7 +176,7 @@ class CaldavClient:
         """
 
         def __init__(self, calendarUrl, calendarName, cTag, client = None, hostname = None):
-            self.hostname = util.getHostnameFromUrl(calendarUrl)
+            self.hostname = util.getHostnameFromUrl(hostname)
             self.calendarId = util.splitIdfromUrl(calendarUrl)
             self.calendarUrl = calendarUrl
             self.calendarName = calendarName
@@ -195,7 +195,33 @@ class CaldavClient:
             if self.eventList is None:
                 self.updateAllEvent()
             return self.eventList
+
+        def getEventByRange(self, stDate, edDate):
+            ret = util.requestData(
+                method = "REPORT",
+                hostname=self.domainUrl,
+                depth=1,
+                data=static.XML_REQ_CALENDARDATA % (stDate, edDate),
+                auth = self.client.auth
+            )
         
+            print(ret.content)
+            xmlTree = util.XmlObject(ret.content)
+
+            eventList = []
+            for response in xmlTree.iter():
+                if response.find("href").text == self.calendarUrl:
+                    continue
+                event = self.client.Event(
+                    eventUrl = response.find("href").text(),
+                    eTag = response.find("propstat").find("prop").find("getetag").text(),
+                    eventData = response.find("propstat").find("prop").find("calendar-data").text()
+                )
+                print(str(response.find("propstat").find("prop").find("calendar-data")))
+                eventList.append(event)
+
+            return eventList
+
         def updateAllEvent(self):
             ## load all event (etag, info)
             ret = util.requestData(
@@ -237,7 +263,8 @@ class CaldavClient:
             return cTag
 
     class Event:
-        def __init__(self, eventUrl, eTag):
+        def __init__(self, eventUrl, eTag, eventData = None):
             self.eventUrl = eventUrl
             self.eventId = util.splitIdfromUrl(eventUrl)
             self.eTag = eTag
+            self.eventData = eventData
