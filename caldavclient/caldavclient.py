@@ -4,10 +4,11 @@ from caldavclient import util
 
 class CaldavClient:
 
-    def __init__(self, hostname, id, pw):
+    def __init__(self, hostname, auth = None):
         self.hostname = hostname
-        self.auth = (id, pw)
+        self.auth = auth
         self.principal = None
+        print(auth)
     
     def getPrincipal(self):
         if self.principal is None:

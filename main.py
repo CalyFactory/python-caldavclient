@@ -5,18 +5,17 @@ from caldavclient import util
 
 with open('key.json') as json_data:
     d = json.load(json_data)
-    userId = d['apple']['id']
-    userPw = d['apple']['pw']
+    userId = d['naver']['id']
+    userPw = d['naver']['pw']
 
 # naver : https://caldav.calendar.naver.com:443/caldav/jspiner/calendar/
 # apple : caldav.icloud.com
 
 ##calendar load example 
 client = CaldavClient(
-    "https://caldav.icloud.com",
-#    "https://caldav.calendar.naver.com/principals/users/jspiner",
-    userId,
-    userPw
+#    "https://caldav.icloud.com",
+    "https://caldav.calendar.naver.com/principals/",
+    (userId, userPw)
 )
 
 principal = client.getPrincipal()
