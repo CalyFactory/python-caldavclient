@@ -1,6 +1,7 @@
 from caldavclient import static
 from xml.etree.ElementTree import *
 from caldavclient import util
+import jicson
 
 class CaldavClient:
 
@@ -296,4 +297,4 @@ class CaldavClient:
             self.eventUrl = eventUrl
             self.eventId = util.splitIdfromUrl(eventUrl)
             self.eTag = eTag
-            self.eventData = eventData
+            self.eventData = jicson.fromText(eventData)
