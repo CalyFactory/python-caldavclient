@@ -52,7 +52,7 @@ This sample will show this result.
 CalDav Server
 ------------
 
-- Naver : https://caldav.calendar.naver.com
+- Naver : https://caldav.calendar.naver.com/principals/
 - apple : https://caldav.apple.com
 - Google : I recommend using its own api.
 - yahoo : https://caldav.calendar.yahoo.com
