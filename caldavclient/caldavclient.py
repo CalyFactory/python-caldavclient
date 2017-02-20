@@ -199,34 +199,37 @@ class CaldavClient:
 
         def getCalendarData(self, eventList):
 
-            sendDataList = []
-
-            for eventItem in eventList:
-                sendDataList.append("<D:href xmlns:D=\"DAV:\">%s</D:href>" % (eventItem.eventUrl))
-            sendData = "\n".join(sendDataList)
-
-            ret = util.requestData(
-                method = "REPORT",
-                hostname=self.domainUrl,
-                depth=1,
-                data=static.XML_REQ_CALENDARDATA % (sendData),
-                auth = self.client.auth
-            )
-        
-            xmlTree = util.XmlObject(ret.content)
-
-            eventList = []
-            for response in xmlTree.iter():
-                if response.find("href").text == self.calendarUrl:
-                    continue
-                event = self.client.Event(
-                    eventUrl = response.find("href").text(),
-                    eTag = response.find("propstat").find("prop").find("getetag").text(),
-                    eventData = response.find("propstat").find("prop").find("calendar-data").text()
+            splitRange = 40
+            resultList = []
+            for i in range(0, len(eventList),splitRange):
+                eventSubList = eventList[i:i+splitRange]
+                
+                sendDataList = []
+                for eventItem in eventSubList:
+                    sendDataList.append("<D:href xmlns:D=\"DAV:\">%s</D:href>" % (eventItem.eventUrl))
+                sendData = "\n".join(sendDataList)
+                
+                ret = util.requestData(
+                    method = "REPORT",
+                    hostname=self.domainUrl,
+                    depth=1,
+                    data=static.XML_REQ_CALENDARDATA % (sendData),
+                    auth = self.client.auth
                 )
-                eventList.append(event)
+            
+                xmlTree = util.XmlObject(ret.content)
 
-            return eventList
+                for response in xmlTree.iter():
+                    if response.find("href").text == self.calendarUrl:
+                        continue
+                    event = self.client.Event(
+                        eventUrl = response.find("href").text(),
+                        eTag = response.find("propstat").find("prop").find("getetag").text(),
+                        eventData = response.find("propstat").find("prop").find("calendar-data").text()
+                    )
+                    resultList.append(event)
+
+            return resultList
 
 
         def getEventByRange(self, stDate, edDate):
