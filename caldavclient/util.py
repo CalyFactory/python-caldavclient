@@ -7,6 +7,8 @@ from xml.etree.ElementTree import *
 from caldavclient import caldavclient
 from datetime import datetime
 import json
+from icalendar import Calendar, Event
+import icalendar
 
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
     if isinstance(auth, tuple):
@@ -34,6 +36,27 @@ def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth =
         raise Exception('http code error' + str(response.status_code))
 
     return response
+
+def parseICS(ics):
+    dictResult = {}
+    dictResult['VEVENT'] = {}
+    print(ics)
+    calendar = Calendar.from_ical(ics)
+    for component in calendar.walk():
+        if component.name == "VEVENT":
+            for row in component.property_items():
+                print(str(row) + " " + str(component.get(row[0])))
+                
+                # TODO : TRIGGER 키값은 decode가 안되는 문제 해결 필요
+                if row[1] == "TRIGGER":
+                    continue
+                if isinstance(row[1], icalendar.prop.vDDDTypes):
+                    result = component.decoded(row[0])
+                else:
+                    result = str(row[1])
+            dictResult['VEVENT'][row[0]] = result
+    return dictResult
+
 
 def getHostnameFromUrl(url):
     parsedUrl = urlparse(url)

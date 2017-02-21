@@ -300,4 +300,5 @@ class CaldavClient:
             self.eventUrl = eventUrl
             self.eventId = util.splitIdfromUrl(eventUrl)
             self.eTag = eTag
-            self.eventData = jicson.fromText(eventData)
+            if eventData is not None:
+                self.eventData = util.parseICS(eventData)
